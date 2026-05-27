@@ -1,0 +1,370 @@
+----- To view everything inside the dataset
+Select *
+From `e-commerce`.sales.data;
+
+
+
+----------------------------------------------------------------------------------Exploratory Data Analysis----------------------------------------------------------------------------------------------------------
+
+--------1. InvoiceNo----------------------------------------------------------
+
+---To check if there are any null values in the InvoiceNo
+Select InvoiceNo
+From `e-commerce`.sales.data
+WHERE InvoiceNo IS NULL;
+
+---to check the how many invoices are there in the dataset
+Select count(DISTINCT InvoiceNo) AS total_invoices
+From `e-commerce`.sales.data;
+
+---To see the list of different invoices in the dataset
+Select DISTINCT InvoiceNo
+From `e-commerce`.sales.data
+WHERE InvoiceNo  NOT LIKE 'C%' AND InvoiceNo NOT LIKE '5%' AND InvoiceNo NOT LIKE 'A%';
+
+---To check the number of invoices per customer
+Select count(DISTINCT InvoiceNo) AS total_invoices,
+customerid
+From `e-commerce`.sales.data
+Group by customerid;
+
+---Maximum number of customer transaxtions
+Select Max(InvoiceNo) AS maxium_transactions
+From `e-commerce`.sales.data
+WHERE InvoiceNo NOT LIKE 'C%';
+
+
+--------2. StockCode------------------------------------------------------------------
+
+---To check if there are any null values in the StockCode
+Select StockCode
+From `e-commerce`.sales.data
+WHERE StockCode IS NULL;
+
+---To check the number of unique product codes in the dataset
+Select count(DISTINCT StockCode) AS Total_stockcodes
+From `e-commerce`.sales.data;
+
+---To see the list  of unique product codes in the dataset
+Select DISTINCT StockCode AS diff_codes
+From `e-commerce`.sales.data;
+
+
+--------3. Description----------------------------------------------------------------------
+
+---To check if there are any null values in the Description
+Select Description
+From `e-commerce`.sales.data
+WHERE Description IS NULL;
+
+---To check the number of unique products in the dataset
+Select count(DISTINCT Description) AS Total_products
+From `e-commerce`.sales.data;
+
+---To see the list of different products and to spot invalid values
+Select distinct(Description) AS Different_products
+From `e-commerce`.sales.data;
+
+
+--------4. Quantity--------------------------------------------------------
+
+---To check if there are any null values in the Quantity
+Select Quantity
+From `e-commerce`.sales.data
+WHERE Quantity IS NULL;
+
+---To check the total quantity in the dataset
+Select sum(quantity) AS total_Qty
+From `e-commerce`.sales.data;
+
+---To see the amount of products bought buy customers
+Select CustomerID,
+Sum(Quantity) AS total_QTY
+From `e-commerce`.sales.data
+Group by CustomerID;
+
+
+
+--------5. InvoiceDate--------------------------------------------------------
+
+---To check if there are any null values in the InvoiceDate
+Select InvoiceDate
+From `e-commerce`.sales.data
+WHERE InvoiceDate IS null;
+
+---To check the different dates and to spot invalid values
+Select distinct(InvoiceDate) AS diff_dates
+From `e-commerce`.sales.data;
+
+---To change the time format to a proper standard
+SELECT InvoiceDate,
+    date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'yyyy-MM-dd HH:mm:ss'
+    ) AS formatted_invoice_date
+FROM `e-commerce`.sales.data;
+
+---Extracting year
+Select year(date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'yyyy-MM-dd HH:mm:ss'
+    )) AS year
+From `e-commerce`.sales.data;
+
+---Extracting Monthname
+SELECT 
+    date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'MMMM'
+    ) AS monthname
+FROM `e-commerce`.sales.data;
+
+---Extracting DayName
+SELECT 
+    date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'EEEE'
+    ) AS day_name
+FROM `e-commerce`.sales.data;
+
+---Extracting Hour
+SELECT 
+    date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'H'
+    ) AS hour
+FROM `e-commerce`.sales.data;
+
+
+---Creating weekday classification and quarters
+select date_format(TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'), 'MMMM') AS monthname,
+CASE 
+        WHEN date_format(TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'), 'MMMM') IN ('January','February','March') THEN 'Q1'
+        WHEN date_format(TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'), 'MMMM') IN ('April','May','June') THEN 'Q2'
+        WHEN date_format(TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'), 'MMMM') IN ('July','August','September') THEN 'Q3'
+        ELSE 'Q4'
+    END AS quarter,
+    CASE
+        WHEN date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'EEEE'
+    ) IN ('Saturday','Sunday') THEN 'Weekend'
+        ELSE 'Weekday'
+    END AS Weekday_Classification
+from `e-commerce`.sales.data;
+
+
+
+--------6. UnitPrice-------------------------------------------------------
+
+---To check if there are any null values in the Unit
+Select Unitprice
+From `e-commerce`.sales.data
+WHERE UnitPrice is null;
+
+
+
+----------7. CustomerID-------------------------------------------------
+
+---To check if there are any null values in the CustomerID
+Select CustomerID
+From `e-commerce`.sales.data
+WHERE CustomerID IS NULL;
+
+---To check how many customers are there in the dataset
+Select Count(DISTINCT(CustomerID)) AS Total_customers
+From `e-commerce`.sales.data;
+
+---To see a list of different customers
+Select distinct(CustomerID) AS Diff_Customers
+From `e-commerce`.sales.data;
+
+---To see customers who made more than one transaction
+Select CustomerID ,
+    COUNT(*) AS purchase_count
+FROM `e-commerce`.sales.data
+GROUP BY CustomerID
+HAVING COUNT(*) > 1;
+
+---To see the total number of transactions made by each customer
+Select CustomerID,
+count(InvoiceNo) AS total_invoice
+from `e-commerce`.sales.data
+WHERE InvoiceNo NOT LIKE 'C%' AND InvoiceNo NOT LIKE 'A%' 
+GROUP BY CustomerID;
+
+
+
+--------8. Country------------------------------------------------------------------
+
+---To check if there are any null values in the Country
+Select Country
+From `e-commerce`.sales.data
+WHERE Country IS NULL;
+
+---To check the different countries
+Select count(distinct(Country)) AS diff_countries
+From `e-commerce`.sales.data;
+
+---To see the list of different countries
+Select distinct(Country) AS diff_countries
+From `e-commerce`.sales.data;
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----CODE
+
+SELECT  StockCode,
+CustomerID,
+ InvoiceNo,
+   CASE
+        WHEN InvoiceNo LIKE 'C%' THEN 'Cancelled Orders'
+        WHEN InvoiceNo LIKE 'A%' THEN 'Special Orders'
+        WHEN InvoiceNo LIKE '5%' THEN 'Standard Orders'
+        ELSE 'Other'
+    END AS Invoice_Group,
+    count(InvoiceNo) AS Total_transactions,
+    CASE 
+        WHEN COUNT(InvoiceNo) OVER (PARTITION BY CustomerID) = 1 THEN 'One-Time Customers'
+        WHEN COUNT(InvoiceNo) OVER (PARTITION BY CustomerID) BETWEEN 2 AND 10 THEN 'Rare Customers'
+        WHEN COUNT(InvoiceNo) OVER (PARTITION BY CustomerID) BETWEEN 11 AND 50 THEN 'Occasional Customers'
+        WHEN COUNT(InvoiceNo) OVER (PARTITION BY CustomerID) BETWEEN 51 AND 200 THEN 'Regular Customers'
+        WHEN COUNT(InvoiceNo) OVER (PARTITION BY CustomerID) BETWEEN 201 AND 1000 THEN 'Frequent Customers'
+        ELSE 'Top Customers'
+    END AS Customer_Purchasing_Frequency,
+   
+     Description,
+    CASE 
+        WHEN Description LIKE '%LANTERN%' 
+          OR Description LIKE '%T-LIGHT%'
+          OR Description LIKE '%CANDLE%'
+          OR Description LIKE '%HOLDER%'
+          OR Description LIKE '%DECORATION%'
+          OR Description LIKE '%FRAME%'
+        THEN 'Home Decor'
+
+        WHEN Description LIKE '%MUG%'
+          OR Description LIKE '%TEA%'
+          OR Description LIKE '%BOWL%'
+          OR Description LIKE '%PLATE%'
+          OR Description LIKE '%JUG%'
+          OR Description LIKE '%LUNCH BOX%'
+          OR Description LIKE '%CUTLERY%'
+        THEN 'Kitchen & Dining'
+
+        WHEN Description LIKE '%BAG%'
+          OR Description LIKE '%SHOPPER%'
+          OR Description LIKE '%STORAGE%'
+          OR Description LIKE '%BOX%'
+        THEN 'Bags & Storage'
+
+        WHEN Description LIKE '%TOY%'
+          OR Description LIKE '%DOLL%'
+          OR Description LIKE '%JIGSAW%'
+          OR Description LIKE '%GAME%'
+          OR Description LIKE '%TEDDY%'
+        THEN 'Toys & Kids'
+
+        WHEN Description LIKE '%CARD%'
+          OR Description LIKE '%NOTEBOOK%'
+          OR Description LIKE '%PENCIL%'
+          OR Description LIKE '%WRAP%'
+          OR Description LIKE '%STICKER%'
+        THEN 'Stationery'
+
+        WHEN Description LIKE '%BAG%'
+          OR Description LIKE '%PURSE%'
+          OR Description LIKE '%UMBRELLA%'
+          OR Description LIKE '%SCARF%'
+        THEN 'Accessories'
+
+        WHEN Description LIKE '%CHRISTMAS%'
+          OR Description LIKE '%SANTA%'
+          OR Description LIKE '%REINDEER%'
+        THEN 'Seasonal Activities'
+
+        ELSE 'Other'
+    END AS Product_Category,
+    Sum(UnitPrice*Quantity) AS Total_Revenue,
+
+    UnitPrice,    
+    Quantity,
+    Count(Quantity) As Total_Quanties,
+    CASE 
+            WHEN count(Quantity) OVER(PARTITION BY CustomerID) < 0 THEN 'Returns'
+            WHEN count(Quantity) OVER(PARTITION BY CustomerID) = 0 THEN 'No Purchase'
+            WHEN count(Quantity) OVER(PARTITION BY CustomerID)BETWEEN 1 AND 100 THEN 'Low Buyers'
+            WHEN count(Quantity) OVER(PARTITION BY CustomerID) BETWEEN 101 AND 1000 THEN 'Moderate Buyers'
+            WHEN count(Quantity) OVER(PARTITION BY CustomerID) BETWEEN 1001 AND 10000 THEN 'High Buyers'
+            WHEN count(Quantity) OVER(PARTITION BY CustomerID) BETWEEN 10001 AND 50000 THEN 'Very High Buyers'
+            ELSE 'Bulk Buyers'
+            END AS Customer_spending_segment,
+    Country,
+        CASE 
+        WHEN country = 'United Kingdom' THEN 'UK'
+        WHEN country IN (
+            'France','Germany','Netherlands','Norway','Switzerland','Spain',
+            'Poland','Portugal','Italy','Belgium','Lithuania','Iceland',
+            'Denmark','Cyprus','Sweden','Austria','Finland','Greece',
+            'Czech Republic','Malta','European Community','Channel Islands'
+        ) THEN 'Europe'
+        WHEN country IN (
+            'Israel','Bahrain','United Arab Emirates','Saudi Arabia','Lebanon'
+        ) THEN 'Middle East'
+        WHEN country IN (
+            'Japan','Hong Kong','Singapore'
+        ) THEN 'Asia'
+        WHEN country IN (
+            'USA','Canada'
+        ) THEN 'North America'
+        WHEN country IN (
+            'Australia'
+        ) THEN 'Oceania'
+        WHEN country IN (
+            'RSA'
+        ) THEN 'Africa'
+        WHEN country IN (
+            'Brazil'
+        ) THEN 'South America'
+        WHEN country = 'Unspecified' THEN 'Unspecified'
+        ELSE 'Other'
+       END AS region,
+count(Distinct CustomerID) AS Total_customer,
+     date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'yyyy-MM-dd HH:mm:ss'
+    ) AS New_invoice_date,
+year(date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'yyyy-MM-dd HH:mm:ss'
+    )) AS year,
+date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'MMMM'
+    ) AS monthname,
+date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'EEEE'
+    ) AS day_name,
+date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'H'
+    ) AS hour,
+    
+    CASE
+        WHEN date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'EEEE'
+    ) IN ('Saturday','Sunday') THEN 'Weekend'
+        ELSE 'Weekday'
+    END AS Weekday_Classification
+
+    From `e-commerce`.sales.data
+    WHERE CustomerID IS NOT NULL AND InvoiceDate IS NOT NULL AND Description IS NOT NULL AND   date_format(
+        TRY_TO_TIMESTAMP(InvoiceDate, 'd/M/yyyy H:mm'),
+        'yyyy-MM-dd HH:mm:ss'
+    ) IS NOT NULL
+    Group by StockCode,InvoiceNo,invoice_group,CustomerID, Country, region, New_invoice_date, year, monthname, day_name, hour, Weekday_Classification,Quantity,UnitPrice,Description
+    ;
+  
